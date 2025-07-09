@@ -21,14 +21,14 @@ public class TimeSeriesStoreTest {
 
     @Before
     public void setUp() {
-        store = new TimeSeriesStoreImpl("test_data.json",TimeUnit.MINUTES.toMillis(5));
+        store = new TimeSeriesStoreImpl("data.jsonl",TimeUnit.HOURS.toMillis(24));
         store.initialize();
     }
 
     @After
     public void tearDown() {
         store.shutdown();
-        new File("test_data.json").delete();
+//        new File("test_data.json").delete();
     }
     
     @Test

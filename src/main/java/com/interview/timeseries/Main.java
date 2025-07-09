@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 public class Main {
     public static void main(String[] args) {
         // Create and initialize the store
-        TimeSeriesStore store = new TimeSeriesStoreImpl("timeseries_data.jsonl", TimeUnit.HOURS.toMillis(24));
+        TimeSeriesStore store = new TimeSeriesStoreImpl("data.jsonl", TimeUnit.HOURS.toMillis(24));
         boolean initialized = store.initialize();
         System.out.println("Store initialized: " + initialized);
         
