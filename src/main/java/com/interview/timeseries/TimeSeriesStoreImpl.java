@@ -22,7 +22,7 @@ public class TimeSeriesStoreImpl implements TimeSeriesStore {
     private final long retentionPeriodMs;
     private static final int BATCH_SIZE = 100;
     private static final int FLUSH_INTERVAL_MS = 1000;
-    private static final long CLEANUP_INTERVAL_MS = 60 * 1000;
+    private static final long CLEANUP_INTERVAL_MS = 30*60 * 1000;
 
     ReentrantLock fileLock = new ReentrantLock(true);
     private boolean initialized = false;
@@ -275,7 +275,7 @@ public class TimeSeriesStoreImpl implements TimeSeriesStore {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                System.out.println("In Memory Data cleaned");
+                System.out.println("Memory Data cleaned");
             }
         }, "CleanupThread");
 
@@ -283,7 +283,6 @@ public class TimeSeriesStoreImpl implements TimeSeriesStore {
     }
 
     private void cleanupOldDataFromFile() {
-        System.out.println("in cleanup old data from file");
         fileLock.lock();
         try {
             File inputFile = new File(DATA_FILE_PATH);
@@ -310,7 +309,7 @@ public class TimeSeriesStoreImpl implements TimeSeriesStore {
             }
 
             writer = new BufferedWriter(new FileWriter(inputFile, true));
-
+            System.out.println("old data in file cleaned");
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -319,8 +318,7 @@ public class TimeSeriesStoreImpl implements TimeSeriesStore {
     }
 
     private void startFileCleanupScheduler() {
-        long delay = computeInitialDelay(20, 15); // Run daily at 1:00 AM
-        System.out.println("delay: "+delay);
+        long delay = computeInitialDelay(1, 0); // Run daily at 1:00 AM
         fileCleanupExecutor.scheduleAtFixedRate(this::cleanupOldDataFromFile, delay, TimeUnit.DAYS.toMillis(1), TimeUnit.MILLISECONDS);
     }
 

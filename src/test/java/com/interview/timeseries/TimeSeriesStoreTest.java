@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 
@@ -20,7 +21,7 @@ public class TimeSeriesStoreTest {
 
     @Before
     public void setUp() {
-        store = new TimeSeriesStoreImpl("test_data.json");
+        store = new TimeSeriesStoreImpl("test_data.json",TimeUnit.MINUTES.toMillis(5));
         store.initialize();
     }
 
@@ -127,5 +128,34 @@ public class TimeSeriesStoreTest {
 
         List<DataPoint> results = store.query("cpu.usage", baseTime, baseTime + insertsPerThread + 1, Map.of("host", "serverX"));
         assertEquals(threadCount * insertsPerThread, results.size());
+    }
+
+    @Test
+    public void testMemoryCapacity() {
+        long base = System.currentTimeMillis();
+        String metric = "mem.usage";
+        int count = 100_000;
+        for (int i = 0; i < count; i++) {
+            long ts = base + i;
+            assertTrue("Insert " + i, store.insert(ts, metric, i, null));
+        }
+        List<DataPoint> all = store.query(metric, base, base + count, null);
+        assertEquals("Should store and retrieve 100k points", count, all.size());
+    }
+
+    @Test
+    public void testQueryPerformance() {
+        long base = System.currentTimeMillis();
+        String metric = "net.bytes";
+        int count = 50_000;
+        for (int i = 0; i < count; i++) {
+            assertTrue(store.insert(base + i, metric, i, null));
+        }
+        long start = System.nanoTime();
+        List<DataPoint> res = store.query(metric, base, base + count, null);
+        long durationMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
+        assertEquals("Count mismatch", count, res.size());
+        assertTrue("Query should complete under 100ms but took " + durationMs + "ms",
+                durationMs < 100);
     }
 }

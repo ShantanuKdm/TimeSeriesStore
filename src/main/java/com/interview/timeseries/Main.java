@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 public class Main {
     public static void main(String[] args) {
         // Create and initialize the store
-        TimeSeriesStore store = new TimeSeriesStoreImpl("timeseries_data.jsonl", TimeUnit.MINUTES.toMillis(5));
+        TimeSeriesStore store = new TimeSeriesStoreImpl("timeseries_data.jsonl", TimeUnit.HOURS.toMillis(24));
         boolean initialized = store.initialize();
         System.out.println("Store initialized: " + initialized);
         
@@ -40,9 +40,7 @@ public class Main {
             results = store.query("cpu.usage", now - 1000, now + 1000, filters);
             System.out.println("Filtered query results: " + results);
 
-            Thread.sleep(300_000);
-
-        }catch (InterruptedException e) {
+        }catch (Exception e) {
             e.printStackTrace();
         } finally {
             boolean shutdown = store.shutdown();
